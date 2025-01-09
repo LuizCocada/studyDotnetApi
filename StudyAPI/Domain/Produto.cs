@@ -35,3 +35,5 @@ public class Produto
     [JsonIgnore]//isso pois Categoria é uma classe de navegação e nao precisa ser serializada.
     public Categoria? Categoria { get; set; } //cada produto esta mapeado a uma categoria
 }
+
+//produto e categoria, causa um loop infinito de referencia. é necesario adicionar IgnoreCycles e Program.cs

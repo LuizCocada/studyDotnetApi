@@ -17,17 +17,17 @@ public class ProdutosController : ControllerBase
     }
     
     [HttpGet]
-    public ActionResult<IEnumerable<Produto>> GetAllProducts() //retorna uma lista de produtos ou qualquer metodo do controllerBase.
+    public async Task<ActionResult<IEnumerable<Produto>>> GetAllProducts() //retorna uma lista de produtos ou qualquer metodo do controllerBase.
     {
-        var produtos = _context.Produtos.AsNoTracking().ToList();
-        if (produtos is null)
+        var produtos = await _context.Produtos.AsNoTracking().ToListAsync();
+        if (produtos is not null)
         {
-            return NotFound("Produtos nao encontrados.");
+            return produtos;
         }
-        return produtos;
+        return NotFound("Lista de produtos vazia.");
     }
 
-    [HttpGet("{id}", Name = "ObterProduto")]
+    [HttpGet("{id:int:min(1)}", Name = "ObterProduto")]
     public ActionResult<Produto> GetProductById(int id)
     {
         var produto = _context.Produtos.AsNoTracking().FirstOrDefault(p => p.ProdutoId == id);

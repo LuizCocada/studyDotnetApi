@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace StudyAPI.Domain;
 
@@ -21,6 +22,5 @@ public class Categoria
     [Required]
     [StringLength(300)]
     public string ImageUrl { get; set; } = string.Empty;
-    
     public ICollection<Produto>? Produtos { get; set; } //categoria um ou mais produtos
 }

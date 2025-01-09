@@ -18,6 +18,19 @@
     <ItemGroup>
       <Compile Remove="WeatherForecast.cs" />
       <Compile Remove="Controllers\WeatherForecastController.cs" />
+      <Compile Remove="Loggins\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Remove="Loggins\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Remove="Loggins\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Loggins\**" />
     </ItemGroup>
 
 </Project>
