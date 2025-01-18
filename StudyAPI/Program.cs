@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using StudyAPI.Context;
 using StudyAPI.Extensions;
 using StudyAPI.Filters;
+using StudyAPI.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +12,9 @@ builder.Services.AddControllers(options =>
 {
     options.Filters.Add(typeof(ApiExceptionFilter)); //filtro de exceção
 }).AddJsonOptions(options => { options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles; });
+
+builder.Services.AddAplication(); //injeção de dependências
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

@@ -1,77 +1,103 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using StudyAPI.Context;
 using StudyAPI.Domain;
+using StudyAPI.Repositories;
+using StudyAPI.Repositories.IRepositorys;
 
 namespace StudyAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class ProdutosController : ControllerBase    
+public class ProdutosController : ControllerBase
 {
-    private readonly AppDbContext _context;// recebe o contexto do banco de dados atraves do contrutor abaixo
+    private readonly IGenericRepository<Produto> _repository;
+    private readonly IProdutoRepository _produtoRepository;
+    private readonly ILogger<ProdutosController> _logger;
 
-    public ProdutosController(AppDbContext context)
+    public ProdutosController(IGenericRepository<Produto> repository, IProdutoRepository produtoRepository, ILogger<ProdutosController> logger)
     {
-        _context = context;
+        _repository = repository;
+        _produtoRepository = produtoRepository;
+        _logger = logger;
     }
-    
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<Produto>>> GetAllProducts() //retorna uma lista de produtos ou qualquer metodo do controllerBase.
+
+    [HttpGet("produtosPorCategoria/{id}")]
+    public ActionResult<Produto> GetProdutosByCategoriaId(int id)
     {
-        var produtos = await _context.Produtos.AsNoTracking().ToListAsync();
-        if (produtos is not null)
+        var produtos = _produtoRepository.GetProdutosByCategoria(id);
+        if (produtos.Count() <= 0)
         {
-            return produtos;
+            _logger.LogWarning("Lista de produtos vazia.");
+            return NotFound("Lista de produtos vazia.");
         }
-        return NotFound("Lista de produtos vazia.");
+        return Ok(produtos);
+    }
+
+    [HttpGet]
+    public ActionResult<IEnumerable<Produto>> GetAllProducts()
+    {
+        var produtos = _repository.GetAll();
+        if (produtos.Count() <= 0)
+        {
+            _logger.LogWarning("Lista de produtos vazia.");
+            return NotFound("Lista de produtos vazia.");
+        }
+
+        return Ok(produtos);
     }
 
     [HttpGet("{id:int:min(1)}", Name = "ObterProduto")]
     public ActionResult<Produto> GetProductById(int id)
     {
-        var produto = _context.Produtos.AsNoTracking().FirstOrDefault(p => p.ProdutoId == id);
+        var produto = _repository.Get(p => p.ProdutoId == id);
         if (produto is null)
         {
+            _logger.LogWarning("Produto nao foi encontrado.");
             return NotFound("Produto nao foi encontrado.");
         }
+
         return produto;
     }
 
     [HttpPost]
-    public ActionResult AddProduct([FromBody] Produto request)
+    public ActionResult AddProduct(Produto? produto)
     {
-        if (request is null)
+        if (produto is null)
+        {
+            _logger.LogWarning("Produto nao pode ser nulo.");
             return BadRequest("Produto nao pode ser nulo.");
-        
-        _context.Produtos.Add(request);
-        _context.SaveChanges();
-        return new CreatedAtRouteResult("ObterProduto", new { id = request.ProdutoId }, request);
+        }
+
+        var produtoCriado = _repository.Add(produto);
+
+        return new CreatedAtRouteResult("ObterProduto", new { id = produtoCriado.ProdutoId }, produtoCriado);
     }
 
     [HttpPut("{id}")]
-    public ActionResult UpdateProduct(int id, Produto request)
+    public ActionResult UpdateProduct(int id, Produto produto)
     {
-      if(id != request.ProdutoId)
-        return BadRequest("Id do produto nao corresponde ao id passado.");
-      
-      _context.Entry(request).State = EntityState.Modified;
-      _context.SaveChanges();
-      
-      return Ok(request);
+        if (id != produto.ProdutoId)
+        {
+            _logger.LogWarning("Id do produto não corresponde ao id passado.");
+            return BadRequest("Id do produto não corresponde ao id passado.");
+        }
+
+        var produtoAtualizado = _repository.Update(produto);
+
+        return Ok(produtoAtualizado);
     }
 
     [HttpDelete("{id}")]
     public ActionResult DeleteProduct(int id)
     {
-        var produto = _context.Produtos.FirstOrDefault(p => p.ProdutoId == id);
-        if(produto is null)
-            return NotFound("Produto nao encontrado.");
-        
-        _context.Produtos.Remove(produto);
-        _context.SaveChanges();
-        
-        return Ok("Produto removido com sucesso.");
+        var produtoExiste = _repository.Get(p => p.ProdutoId == id);
+        if (produtoExiste is null)
+        {
+            _logger.LogWarning("Produto não encontrado.");
+            return NotFound("Produto não encontrado.");
+        }
+
+        _repository.Delete(produtoExiste);
+
+        return Ok($"Produto {produtoExiste.Nome} de Id = {produtoExiste.ProdutoId} foi removido com sucesso!");
     }
-    
 }
