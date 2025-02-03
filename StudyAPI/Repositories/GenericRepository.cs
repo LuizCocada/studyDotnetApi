@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore;
 using StudyAPI.Context;
 using StudyAPI.Repositories.IRepositorys;
 
@@ -12,34 +13,34 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
         Context = context;
     }
     
-    public IEnumerable<T> GetAll()
+    public async Task<IEnumerable<T>> GetAll()
     {
-        return Context.Set<T>().ToList();
+        return await Context.Set<T>().AsNoTracking().ToListAsync();
     }
 
-    public T? Get(Expression<Func<T, bool>> predicate)
+    public async Task<T?> Get(Expression<Func<T, bool>> predicate)
     {
-        return Context.Set<T>().FirstOrDefault(predicate);
+        return await Context.Set<T>().FirstOrDefaultAsync(predicate);
     }
 
     public T Add(T entity)
     {
         Context.Set<T>().Add(entity);
-        Context.SaveChanges();
+        //Context.SaveChanges();
         return entity;
     }
 
     public T Update(T entity)
     {
         Context.Set<T>().Update(entity);
-        Context.SaveChanges();
+        //Context.SaveChanges();
         return entity;
     }
 
     public T Delete(T entity)
     {
         Context.Set<T>().Remove(entity);
-        Context.SaveChanges();
+        //Context.SaveChanges();
         return entity;
     }
 }

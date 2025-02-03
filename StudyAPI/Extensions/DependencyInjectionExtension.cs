@@ -1,3 +1,4 @@
+using StudyAPI.DTOs.Mappings;
 using StudyAPI.Repositories;
 using StudyAPI.Repositories.IRepositorys;
 
@@ -7,13 +8,20 @@ public static class DependencyInjectionExtension
 {
     public static void AddAplication(this IServiceCollection services)
     {
-        AddUseCases(services);
+        AddRepositories(services);
+        AddAutoMapper(services);
     }
 
-    public static void AddUseCases(this IServiceCollection services)
+    private static void AddAutoMapper(this IServiceCollection services)
+    {
+        services.AddAutoMapper(typeof(ProdutoDtoMappingProfile));
+    }
+
+    public static void AddRepositories(this IServiceCollection services)
     {
         services.AddScoped<ICategoriaRepository, CategoriaRepository>();
         services.AddScoped<IProdutoRepository, ProdutoRepository>();
-        services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>)) ;
+        services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
     }
 }

@@ -12,6 +12,7 @@ public class Categoria
     {
         Produtos = new List<Produto>();
     }
+    
     [Key] //redundante pois por ter Id ele já é considerado chave primária
     public int CategoriaId { get; set; }
     

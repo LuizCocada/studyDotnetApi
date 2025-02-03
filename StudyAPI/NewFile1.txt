@@ -1,0 +1,30 @@
+        if (id <= 0 || patchProdutoDto is null)
+        {
+            _logger.LogWarning("Id do produto ou produto não pode ser nulo.");
+            return BadRequest("Id do produto ou produto não pode ser nulo.");
+        }
+
+        var produto = _uof.ProdutoRepository.Get(p => p.ProdutoId == id);
+        if (produto is null)
+        {
+            _logger.LogWarning("Produto não encontrado.");
+            return NotFound("Produto não encontrado.");
+        }
+
+        var produtoToDto = _mapper.Map<ProdutoDtoUpdateRequest>(produto);
+
+        patchProdutoDto.ApplyTo(produtoToDto, ModelState);
+        if (!ModelState.IsValid || TryValidateModel(produtoToDto))
+        {
+            return BadRequest(ModelState);
+        }
+
+        _mapper.Map(produtoToDto, produto);
+
+        var produtoAtualizado = _uof.ProdutoRepository.Update(produto);
+        _uof.Commit();
+
+        var responseProdutoDto = _mapper.Map<ProdutoDtoUpdateResponse>(produtoAtualizado);
+
+
+        return Ok(responseProdutoDto);

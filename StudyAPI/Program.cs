@@ -3,18 +3,18 @@ using Microsoft.EntityFrameworkCore;
 using StudyAPI.Context;
 using StudyAPI.Extensions;
 using StudyAPI.Filters;
-using StudyAPI.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
 
 builder.Services.AddControllers(options =>
-{
-    options.Filters.Add(typeof(ApiExceptionFilter)); //filtro de exceção
-}).AddJsonOptions(options => { options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles; });
+    {
+        options.Filters.Add(typeof(ApiExceptionFilter)); //filtro de exceção
+    }).AddJsonOptions(options => { options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles; })
+    .AddNewtonsoftJson(); //adiciona possibilidade de usar HTTPPath
+
 
 builder.Services.AddAplication(); //injeção de dependências
-
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -24,6 +24,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         ServerVersion.AutoDetect(mySqlConnection)));
 
 builder.Services.AddScoped<ApiLoggingFilter>(); //filtro de log
+
+builder.Services.AddAuthorization();
+builder.Services.AddAuthentication("Bearer").AddJwtBearer(); //autenticação JWT
 
 var app = builder.Build();
 
