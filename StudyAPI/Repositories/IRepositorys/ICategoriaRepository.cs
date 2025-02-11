@@ -1,4 +1,4 @@
-using StudyAPI.Domain;
+using StudyAPI.Models;
 using StudyAPI.Pagination;
 using X.PagedList;
 

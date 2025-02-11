@@ -1,4 +1,4 @@
-using StudyAPI.Domain;
+using StudyAPI.Models;
 
 namespace StudyAPI.DTOs.ProductDTO;
 

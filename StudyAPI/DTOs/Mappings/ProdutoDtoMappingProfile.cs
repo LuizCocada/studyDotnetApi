@@ -1,7 +1,7 @@
 using AutoMapper;
-using StudyAPI.Domain;
 using StudyAPI.DTOs.CategoryDTO;
 using StudyAPI.DTOs.ProductDTO;
+using StudyAPI.Models;
 
 namespace StudyAPI.DTOs.Mappings;
 

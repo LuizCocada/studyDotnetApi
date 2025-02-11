@@ -1,15 +1,1 @@
-using Microsoft.EntityFrameworkCore;
-using StudyAPI.Domain;
-
-namespace StudyAPI.Context;
-
-public class AppDbContext : DbContext //representa uma sessao com o banco de dados.
-{
-    public AppDbContext(DbContextOptions<AppDbContext> options) :
-        base(options) //passando as opções(connection string, etc) para a classe base do dbContext
-    {
-    }
-
-    public DbSet<Categoria> Categorias { get; set; } //mapeando entidade Categoria para a tabela Categorias
-    public DbSet<Produto> Produtos { get; set; } //mapeando entidade Produto para a tabela Produtos
-}
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;using Microsoft.EntityFrameworkCore;using StudyAPI.Models;namespace StudyAPI.Context;public class AppDbContext : IdentityDbContext<ApplicationUser>{    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }    public DbSet<Categoria> Categorias { get; set; }    public DbSet<Produto> Produtos { get; set; }    protected override void OnModelCreating(ModelBuilder builder)    {        base.OnModelCreating(builder);    }}/*- está passando as opcoes do dbContextOptions para a classe base(DbContext)    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }- mapeando entidade Categoria para a tabela Categorias    public DbSet<Categoria> Categorias { get; set; }- mapeando entidade Produto para a tabela Produtos    public DbSet<Produto> Produtos { get; set; }*/

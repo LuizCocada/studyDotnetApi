@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using StudyAPI.Context;
-using StudyAPI.Domain;
+using StudyAPI.Models;
 using StudyAPI.Pagination;
 using StudyAPI.Repositories.IRepositorys;
 using X.PagedList;

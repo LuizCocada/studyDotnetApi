@@ -1,10 +1,11 @@
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using StudyAPI.Domain;
 using StudyAPI.DTOs;
 using StudyAPI.DTOs.ProductDTO;
+using StudyAPI.Models;
 using StudyAPI.Pagination;
 using StudyAPI.Repositories.IRepositorys;
 using X.PagedList;
@@ -41,8 +42,8 @@ public class ProdutosController : ControllerBase
 
         return Ok(produtosDto);
     }
-
     [HttpGet]
+    [Authorize(Policy = "UserOnly")] 
     public async Task<ActionResult<IEnumerable<ProdutoDTO>>> GetAllProducts()
     {
         var produtos = await _uof.ProdutoRepository.GetAll();

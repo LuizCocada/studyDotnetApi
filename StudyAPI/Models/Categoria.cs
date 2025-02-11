@@ -1,9 +1,7 @@
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
 
-namespace StudyAPI.Domain;
+namespace StudyAPI.Models;
 
 [Table("Categorias")] //redundante pois no DbContext ja estamos mapeando, mas é uma boa prática
 public class Categoria

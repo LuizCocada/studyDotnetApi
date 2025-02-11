@@ -1,16 +1,17 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using StudyAPI.Domain;
-using StudyAPI.DTOs;
 using StudyAPI.DTOs.CategoryDTO;
 using StudyAPI.DTOs.Mappings;
+using StudyAPI.Models;
 using StudyAPI.Pagination;
 using StudyAPI.Repositories.IRepositorys;
 using X.PagedList;
 
 namespace StudyAPI.Controllers;
 
+[EnableCors("OrigensComAcessoPermitido")] //portas permitidas
 [ApiController]
 [Route("api/[controller]")]
 public class CategoriasController : ControllerBase
@@ -25,7 +26,7 @@ public class CategoriasController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize]
+    //[Authorize]
     public async Task<ActionResult<IEnumerable<CategoriaDto>>> GetAllCategories()
     {
         var categorias = await _uof.CategoriaRepository.GetAll();
@@ -86,7 +87,7 @@ public class CategoriasController : ControllerBase
         return ObterCategoriaFiltrados(categoriasWithMetadata);
     }
 
-
+    [DisableCors] //desabilitar cors
     [HttpGet("{id}", Name = "ObterCategoria")]
     public async Task<ActionResult<CategoriaDto>> GetCategoriaById(int id)
     {
@@ -113,12 +114,12 @@ public class CategoriasController : ControllerBase
 
         var categoria = categoriaDto.ToCategoria();
 
-        var categoriaCriada = _uof.CategoriaRepository.Add(categoria);
+        var categoriaCriada = _uof.CategoriaRepository.Add(categoria!);
         await _uof.Commit();
 
         var categoriaToDto = categoriaCriada.ToCaregoriaDto();
 
-        return new CreatedAtRouteResult("obterCategoria", new { id = categoriaToDto.CategoriaId }, categoriaToDto);
+        return new CreatedAtRouteResult("obterCategoria", new { id = categoriaToDto!.CategoriaId }, categoriaToDto);
     }
 
     [HttpPut("{id}")]
@@ -138,7 +139,7 @@ public class CategoriasController : ControllerBase
 
         var dtoToCategoria = categoria.ToCategoria();
 
-        var categoriaAtualizada = _uof.CategoriaRepository.Update(dtoToCategoria);
+        var categoriaAtualizada = _uof.CategoriaRepository.Update(dtoToCategoria!);
         await _uof.Commit();
 
         var categoriaToDto = categoriaAtualizada.ToCaregoriaDto();
@@ -147,6 +148,7 @@ public class CategoriasController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<ActionResult<CategoriaDto>> DeleteCategoria(int id)
     {
         var categoria = await _uof.CategoriaRepository.Get(categoria => categoria.CategoriaId == id);
@@ -161,6 +163,6 @@ public class CategoriasController : ControllerBase
 
         var categoriaToDto = categoriaExcluida.ToCaregoriaDto();
 
-        return Ok($"Categoria: {categoriaToDto.Nome} removida com sucesso.");
+        return Ok($"Categoria: {categoriaToDto!.Nome} removida com sucesso.");
     }
 }
