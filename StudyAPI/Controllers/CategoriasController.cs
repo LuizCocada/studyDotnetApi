@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Newtonsoft.Json;
 using StudyAPI.DTOs.CategoryDTO;
 using StudyAPI.DTOs.Mappings;
@@ -11,9 +12,11 @@ using X.PagedList;
 
 namespace StudyAPI.Controllers;
 
-[EnableCors("OrigensComAcessoPermitido")] //portas permitidas
+//[EnableCors("OrigensComAcessoPermitido")] //portas permitidas
 [ApiController]
 [Route("api/[controller]")]
+[EnableRateLimiting("fixedwindow")] //limitar requisições a nivel de controller
+
 public class CategoriasController : ControllerBase
 {
     private readonly IUnitOfWork _uof;
@@ -26,6 +29,7 @@ public class CategoriasController : ControllerBase
     }
 
     [HttpGet]
+    [DisableRateLimiting]
     //[Authorize]
     public async Task<ActionResult<IEnumerable<CategoriaDto>>> GetAllCategories()
     {

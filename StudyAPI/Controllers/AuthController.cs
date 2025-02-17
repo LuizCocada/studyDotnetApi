@@ -11,7 +11,7 @@ using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegiste
 namespace StudyAPI.Controllers;
 
 [Route("api/[controller]")]
-[ApiController]
+[ApiController] 
 public class AuthController : ControllerBase
 {
     private readonly ITokenServices _tokenServices;
@@ -20,7 +20,8 @@ public class AuthController : ControllerBase
     private readonly IConfiguration _config;
     private readonly ILogger<AuthController> _logger;
 
-    public AuthController(ITokenServices tokenServices, UserManager<ApplicationUser> userManeger, RoleManager<IdentityRole> roleManager, IConfiguration config, ILogger<AuthController> logger)
+    public AuthController(ITokenServices tokenServices, UserManager<ApplicationUser> userManeger, RoleManager<IdentityRole> roleManager, IConfiguration config,
+        ILogger<AuthController> logger)
     {
         _tokenServices = tokenServices;
         _userManeger = userManeger;
@@ -71,7 +72,7 @@ public class AuthController : ControllerBase
 
         return Unauthorized();
     }
-
+    
     [HttpPost("register")]
     public async Task<ActionResult> Register([FromBody] RegisterModel registerModel)
     {
@@ -91,7 +92,8 @@ public class AuthController : ControllerBase
         var result = await _userManeger.CreateAsync(user, registerModel.Password!); //realiza o hash da senha e persiste no banco o user.
         if (!result.Succeeded)
         {
-            return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User creation failed! Please check user details and try again." });
+            return StatusCode(StatusCodes.Status500InternalServerError,
+                new Response { Status = "Error", Message = "User creation failed! Please check user details and try again." });
         }
 
         return StatusCode(StatusCodes.Status201Created, new Response { Status = "Success", Message = "User created successfully!" });
@@ -112,7 +114,8 @@ public class AuthController : ControllerBase
         string username = principal!.Identity!.Name!;
 
         var user = await _userManeger.FindByNameAsync(username);
-        if (user is null || user.RefreshToken != refreshToken || user.RefreshTokenExpiryTime <= DateTime.Now) //caso o refreshToken ja tenha expirado, retorne error; 
+        if (user is null || user.RefreshToken != refreshToken ||
+            user.RefreshTokenExpiryTime <= DateTime.Now) //caso o refreshToken ja tenha expirado, retorne error; 
         {
             return BadRequest("Invalid refresh token");
         }
@@ -184,16 +187,18 @@ public class AuthController : ControllerBase
         if (role is null) return BadRequest("Role not found");
 
         var result = await _userManeger.AddToRoleAsync(user, role.Name!);
-        
+
         if (result.Succeeded)
         {
             _logger.LogInformation($"Role {role.Name} assigned to user {user.UserName} successfully!");
-            return StatusCode(StatusCodes.Status201Created, new Response { Status = "Success", Message = $"Role {role.Name} assigned to user {user.UserName} successfully!" });
+            return StatusCode(StatusCodes.Status201Created,
+                new Response { Status = "Success", Message = $"Role {role.Name} assigned to user {user.UserName} successfully!" });
         }
         else
         {
             _logger.LogInformation("Role assignment failed!");
-            return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "Role assignment failed! Please check role details and try again." });
+            return StatusCode(StatusCodes.Status500InternalServerError,
+                new Response { Status = "Error", Message = "Role assignment failed! Please check role details and try again." });
         }
     }
 }

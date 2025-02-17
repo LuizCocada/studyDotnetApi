@@ -2,6 +2,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Newtonsoft.Json;
 using StudyAPI.DTOs;
 using StudyAPI.DTOs.ProductDTO;
@@ -43,7 +44,7 @@ public class ProdutosController : ControllerBase
         return Ok(produtosDto);
     }
     [HttpGet]
-    [Authorize(Policy = "UserOnly")] 
+    //[Authorize(Policy = "UserOnly")] 
     public async Task<ActionResult<IEnumerable<ProdutoDTO>>> GetAllProducts()
     {
         var produtos = await _uof.ProdutoRepository.GetAll();

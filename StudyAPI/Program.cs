@@ -1,7 +1,9 @@
 using System.Text;
 using System.Text.Json.Serialization;
+using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -95,6 +97,37 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddConfigurarionPolicy(); //configurações de autorização por roles
 
+//rate limiting nivel de Controller
+builder.Services.AddRateLimiter(rateLimiterOption =>
+{
+    rateLimiterOption.AddFixedWindowLimiter(policyName: "fixedwindow", options =>
+    {
+        options.PermitLimit = 1;
+        options.Window = TimeSpan.FromSeconds(5);
+        options.QueueLimit = 2;
+        options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+    });
+    rateLimiterOption.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+});
+
+//rate limiting nivel Global
+builder.Services.AddRateLimiter(rateLimiterOption =>
+{
+    rateLimiterOption.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+    rateLimiterOption.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpcontext =>
+        RateLimitPartition.GetFixedWindowLimiter(partitionKey: httpcontext.User.Identity?.Name ??
+                                                               httpcontext.Request.Headers.Host.ToString(),
+            factory: partition => new FixedWindowRateLimiterOptions
+            {
+                AutoReplenishment = true,
+                PermitLimit = 5,
+                QueueLimit = 2,
+                Window = TimeSpan.FromSeconds(10)
+            }
+        )
+    );
+});
 
 string? mySqlConnection = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -118,6 +151,7 @@ app.UseHttpsRedirection(); //middleware to redirect HTTP request to HTTPS
 app.UseStaticFiles(); //middleware to handle static files
 app.UseRouting(); //middleware to handle routing
 
+app.UseRateLimiter(); //middleware to handle rate limiter
 app.UseCors(); //middleware to handle CORS default
 
 app.UseAuthorization(); //middleware to handle authorization
